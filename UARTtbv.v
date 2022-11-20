@@ -6,7 +6,7 @@ module tb;
     wire [7:0] rxout;
     wire rxdone, txdone;
  
-   wire txrx;
+ wire txrx;//to join and check if they are equal or not
    
  top dut (clk, start, txin, txrx,txrx, rxout, rxdone, txdone );
  integer i = 0;

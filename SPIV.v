@@ -1,6 +1,5 @@
 `timescale 1ns / 1ps
- 
- 
+
 module spi
 (
 input clk, start, 
@@ -25,7 +24,7 @@ end
 /////////////////////////////////////
 parameter idle = 0, start_tx = 1, send = 2, end_tx = 3; 
 reg [1:0] state = idle;
-reg [11:0] temp;
+ reg [11:0] temp;//to prevent any changes in data while transmitting with change in din
 integer bitcount = 0;
  
 always@(posedge sclkt)
@@ -44,7 +43,7 @@ begin
             
             
             start_tx : begin
-              cs    <= 1'b0;
+              cs    <= 1'b0;// assumed value to start transactions
               temp  <= din; 
               state <= send; 
             end
@@ -76,6 +75,6 @@ begin
 end
  
  
-assign sclk = sclkt;
+assign sclk = sclkt;//clock sent to slave for transmitting value to the slave
  
 endmodule

@@ -2,7 +2,7 @@ module eeprom_top
   (
  input clk,
  input rst,
- input newd,
+ input newd,//signal
  input ack,
  input wr,   
  output scl,
@@ -13,8 +13,7 @@ module eeprom_top
  output reg done
   );
   
- reg sda_en = 0;
-  
+ reg sda_en = 0;//distinguish bw type of operation
  reg sclt, sdat, donet; 
  reg [7:0] rdatat; 
  reg [7:0] addrt;
@@ -36,8 +35,7 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
   ////100 M / 400 K = N
   ///N/2
   
-  
-  always@(posedge clk)
+  always@(posedge clk)//slow clock
     begin
       if(count <= 9) 
         begin
@@ -73,18 +71,14 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
                 state  <= wstart;
              else 
                  state <= idle;         
-           end
-         
+           end         
             wstart: 
             begin
               sdat  <= 1'b0;
               sclt  <= 1'b1;
               state <= check_wr;
               addrt <= {addr,wr};
-            end
-            
-            
-            
+            end           
             check_wr: begin
                 ///addr remain same for both write and read
               if(wr == 1'b1) 
@@ -99,13 +93,7 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
                  sdat <= addrt[0];
                  i <= 1;
                  end
-            end
-         
-                    
- 
- 
-         
-         
+            end         
             wsend_addr : begin                
                       if(i <= 7) begin
                       sdat  <= addrt[i];
@@ -116,9 +104,7 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
                           i <= 0;
                           state <= waddr_ack; 
                         end   
-                    end
-         
-         
+                    end         
            waddr_ack : begin
              if(ack == 1'b1) begin
                state <= wsend_data;
@@ -127,8 +113,7 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
                end
              else
                state <= waddr_ack;
-           end
-         
+           end        
          wsend_data : begin
            if(i <= 7) begin
               i     <= i + 1;
@@ -138,8 +123,7 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
               i     <= 0;
               state <= wdata_ack;
            end
-         end
-         
+         end         
           wdata_ack : begin
              if(ack == 1'b1) begin
                state <= wstop;
@@ -149,19 +133,14 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
              else begin
                state <= wdata_ack;
              end 
-            end
-         
-              
-         
+            end         
          wstop: begin
               sdat  <=  1'b1;
               state <=  idle;
               done  <=  1'b1;  
          end
          
-         ///////////////////////read state
-         
-         
+         ///////////////////////read state   
           rsend_addr : begin
                      if(i <= 7) begin
                       sdat  <= addrt[i];
@@ -172,9 +151,7 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
                           i <= 0;
                           state <= raddr_ack; 
                         end   
-                    end
-         
-         
+          end                 
            raddr_ack : begin
              if(ack == 1'b1) begin
                state  <= rsend_data;
@@ -182,8 +159,7 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
              end
              else
                state <= raddr_ack;
-           end
-         
+           end         
          rsend_data : begin
                    if(i <= 7) begin
                          i <= i + 1;
@@ -197,20 +173,13 @@ parameter idle = 0, check_wr = 1, wstart = 2, wsend_addr = 3, waddr_ack = 4,
                           sclt <= 1'b1;
                           sdat <= 1'b0;  
                         end         
-         end
-          
-        
-         
-         
+         end       
          rstop: begin
               sdat  <=  1'b1;
               state <=  idle;
               done  <=  1'b1;  
-              end
-         
-         
+              end        
          default : state <= idle;
-         
           	 endcase
           end
   end
